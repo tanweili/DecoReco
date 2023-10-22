@@ -58,9 +58,17 @@ contract DecoReco {
     function bidForModule(string calldata _moduleCode, uint16 _amount) public onlyRegisteredStudents() {
         require(_amount > 0, "Bid amount must be more than 0.");
         require(modules[_moduleCode].isAvailable == true, "Cannot bid for a non existent module.");
+        require(registeredStudents[msg.sender].eDollars > _amount, "Your bid amount is more than your current remaining eDollars.");
         Bids[_moduleCode][msg.sender] = _amount;
-        // To do here: Check for student's previous bid, and ensuring that student's balance is correct.
+        registeredStudents[msg.sender].eDollars -= _amount;
     }
+
+    function withdrawBidForModule(string calldata _moduleCode) public onlyRegisteredStudents() {
+        require(Bids[_moduleCode][msg.sender] > 0, "You do not have a bid for the requested module.");
+        registeredStudents[msg.sender].eDollars += Bids[_moduleCode][msg.sender];
+        Bids[_moduleCode][msg.sender] = 0;
+    }
+
 
     struct Student {
         address studentAddress;
