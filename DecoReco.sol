@@ -69,6 +69,9 @@ contract DecoReco {
         Bids[_moduleCode][msg.sender] = 0;
     }
 
+    function selfDestruct() public onlyOwner {
+        selfdestruct(payable(msg.sender));
+    }
 
     struct Student {
         address studentAddress;
