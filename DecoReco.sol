@@ -68,11 +68,7 @@ contract DecoReco {
         registeredStudents[msg.sender].eDollars += Bids[_moduleCode][msg.sender];
         Bids[_moduleCode][msg.sender] = 0;
     }
-
-    function selfDestruct() public onlyOwner {
-        selfdestruct(payable(msg.sender));
-    }
-
+    
     struct Student {
         address studentAddress;
         uint16 eDollars;
