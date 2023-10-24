@@ -8,9 +8,9 @@ contract MinHeap {
     }
 
     Bid[] private minHeap;
-    uint256 maxCapacity;
+    uint16 maxCapacity;
 
-    constructor(uint256 _maxCapacity) {
+    constructor(uint16 _maxCapacity) {
         maxCapacity = _maxCapacity;
     }
 
@@ -26,14 +26,14 @@ contract MinHeap {
             extractMin();
         }
         minHeap.push(Bid(_studentAddress, _amount));
-        uint256 currentIndex = minHeap.length - 1;
+        uint16 currentIndex = (uint16)(minHeap.length) - 1;
         bubbleUp(currentIndex);
     }
 
     function extractMin() public returns (uint16) {
         require(minHeap.length > 0, "Heap is empty");
         uint16 minValue = minHeap[0].amount;
-        uint256 lastIndex = minHeap.length - 1;
+        uint16 lastIndex = (uint16)(minHeap.length) - 1;
         minHeap[0] = minHeap[lastIndex];
         minHeap.pop();
         bubbleDown(0);
@@ -41,24 +41,24 @@ contract MinHeap {
     }
 
     function removeByAddress(address addressToRemove) public {
-        uint256 indexToRemove = minHeap.length;
-        for (uint256 i = 0; i < minHeap.length; i++) {
+        uint16 indexToRemove = (uint16)(minHeap.length);
+        for (uint16 i = 0; i < minHeap.length; i++) {
             if (minHeap[i].studentAddress == addressToRemove) {
                 indexToRemove = i;
                 break;
             }
         }
         if (indexToRemove != minHeap.length) {
-            uint256 lastIndex = minHeap.length - 1;
+            uint16 lastIndex = (uint16)(minHeap.length) - 1;
             minHeap[indexToRemove] = minHeap[lastIndex];
             minHeap.pop();
             bubbleDown(indexToRemove);
         }
     }
 
-    function bubbleUp(uint256 index) private {
+    function bubbleUp(uint16 index) private {
         while (index > 0) {
-            uint256 parentIndex = (index - 1) / 2;
+            uint16 parentIndex = (index - 1) / 2;
             if (minHeap[index].amount < minHeap[parentIndex].amount) {
                 Bid memory temp = minHeap[index];
                 minHeap[index] = minHeap[parentIndex];
@@ -70,10 +70,10 @@ contract MinHeap {
         }
     }
 
-    function bubbleDown(uint256 index) private {
-        uint256 leftChildIndex;
-        uint256 rightChildIndex;
-        uint256 smallestChildIndex;
+    function bubbleDown(uint16 index) private {
+        uint16 leftChildIndex;
+        uint16 rightChildIndex;
+        uint16 smallestChildIndex;
 
         while (true) {
             leftChildIndex = 2 * index + 1;
