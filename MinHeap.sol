@@ -9,12 +9,21 @@ contract MinHeap {
 
     Bid[] private minHeap;
     uint16 maxCapacity;
+    mapping(address => bool) private admins;
 
     constructor(uint16 _maxCapacity) {
+        admins[0x386703857E714284e154a7d937348d2d88a702D8] = true; // Wei Li
+        admins[0xF3454f923316E665C16C4591D7c0B5aA2b12a201] = true; // Winnie
+        admins[0xaB066AeA51c007923885d8949128325198467F67] = true; // Wraine
         maxCapacity = _maxCapacity;
     }
 
-    function getArray() public view returns (Bid[] memory) {
+    modifier onlyOwner() {
+        require(admins[msg.sender], "Only admins can call this function.");
+        _;
+    }
+    
+    function getHeap() onlyOwner public view returns (Bid[] memory) {
         return minHeap;
     }
 
