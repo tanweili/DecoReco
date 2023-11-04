@@ -8,7 +8,8 @@ contract DecoReco {
     mapping(address => Student) private registeredStudents;
     string[] private moduleCodes;
 
-address[] public studentAddresses;
+    address[] public studentAddresses;
+    //this address is uesd for student list
 
     mapping(string => Module) private modules;
     mapping(string => MinHeap) private Bids;
@@ -44,20 +45,21 @@ address[] public studentAddresses;
         require(registeredStudents[msg.sender].isRegistered == false, "You have already registered for course registration.");
         registeredStudents[msg.sender] = Student(msg.sender, 1000, true);
 
-studentAddresses.push(msg.sender);
-
+    studentAddresses.push(msg.sender);
+    //add the student address into student list
     }
 
     function deregisterStudent() public {
         require(registeredStudents[msg.sender].isRegistered == true, "You have not yet registered for course registration.");
         registeredStudents[msg.sender] = Student(msg.sender, 0, false);
 
-    for (uint256 i = 0; i < studentAddresses.length; i++) {
+        for (uint256 i = 0; i < studentAddresses.length; i++) {
         if (studentAddresses[i] == msg.sender) {
             studentAddresses[i] = studentAddresses[studentAddresses.length - 1];
             studentAddresses.pop();
             break;
         }
+        //remove student address from stdent list
     }
     }
 
@@ -126,10 +128,11 @@ studentAddresses.push(msg.sender);
     function endCourseReg() public onlyOwner() {
         courseRegStarted = false;
 
-    for (uint256 i = 0; i < studentAddresses.length; i++) {
+        for (uint256 i = 0; i < studentAddresses.length; i++) {
         address studentAddress = studentAddresses[i];
         registeredStudents[studentAddress].eDollars = 1000;
-    }
+        }
+        //each time the function ecdCourseRed() run, this for cycle will reset student's eDollars to 1000
 
         for (uint256 i = 0; i < moduleCodes.length; i++) {
             MinHeap.Bid[] memory heap = Bids[moduleCodes[i]].getHeap();
