@@ -40,10 +40,9 @@ class DApp extends Component {
     }
   }
 
-  checkAdmin = async () => {
+  checkIsAdmin = async () => {
     const { contract, account } = this.state;
-    const test = await contract.methods.checkAdminStatus(account).call({ from: account });
-    console.log(test);
+    return await contract.methods.checkAdminStatus(account).call({ from: account });
   };
 
   // Function to register a student
@@ -126,8 +125,6 @@ class DApp extends Component {
           <button onClick={this.showResults}>Show Results</button>
           <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
-          <br/>
-          <button onClick={this.checkAdmin}>check admin</button>
         </div>
       </div>
     );
