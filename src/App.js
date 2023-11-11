@@ -4,7 +4,6 @@ import { CONTRACT_NAME_ABI, CONTRACT_NAME_ADDRESS } from "./Contracts/config.js"
 import './App.css';
 import logo from "./logo.svg"
 
-
 class DApp extends Component {
   constructor(props) {
     super(props);
@@ -19,8 +18,6 @@ class DApp extends Component {
       isAdmin: false,
     };
   }
-
-  
 
   async componentDidMount() {
     // Check if Metamask is installed and enabled
@@ -53,7 +50,11 @@ class DApp extends Component {
   // Function to place a bid
   placeBid = async () => {
     const { contract, courseName, stakeAmount, account } = this.state;
-    await contract.methods.bidForModule(courseName, stakeAmount).send({ from: account });
+
+    // Convert the stakeAmount to a suitable format
+    const formattedStakeAmount = this.state.web3.utils.toWei(stakeAmount, "ether");
+
+    await contract.methods.bidForModule(courseName, formattedStakeAmount).send({ from: account });
   };
 
   // Function to remove a bid
@@ -109,7 +110,7 @@ class DApp extends Component {
             onChange={(e) => this.setState({ courseName: e.target.value })}
           />
           <input
-            type="number"
+            type="text" // Change the type to text to allow decimal values
             placeholder="Stake Amount"
             onChange={(e) => this.setState({ stakeAmount: e.target.value })}
           />
@@ -123,9 +124,6 @@ class DApp extends Component {
       </div>
     );
   }
-
-
 }
 
 export default DApp;
-
