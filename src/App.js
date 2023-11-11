@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Web3 from "web3";
 import { CONTRACT_NAME_ABI, CONTRACT_NAME_ADDRESS } from "./Contracts/config.js";
 import './App.css';
+import logo from "./logo.svg"
 
 
 class DApp extends Component {
@@ -18,6 +19,8 @@ class DApp extends Component {
       isAdmin: false,
     };
   }
+
+  
 
   async componentDidMount() {
     // Check if Metamask is installed and enabled
@@ -73,14 +76,17 @@ class DApp extends Component {
 
   render() {
     return (
-      <div>
+      <div className="App-header">
+        <img className="App-logo" src={logo} alt="Logo" />
+        <p>DecoReco</p>
         <p>Metamask Address: {this.state.account}</p>
-        <div>
+        <div className="Align-center">
           <input
             type="text"
             placeholder="Student Name"
             onChange={(e) => this.setState({ studentName: e.target.value })}
           />
+          <br />
           <button onClick={this.registerStudent}>Register Student</button>
         </div>
         {this.state.bids.length > 0 && (
@@ -96,7 +102,7 @@ class DApp extends Component {
             </ul>
           </div>
         )}
-        <div>
+        <div className="Align-center">
           <input
             type="text"
             placeholder="Course Name"
@@ -107,15 +113,18 @@ class DApp extends Component {
             placeholder="Stake Amount"
             onChange={(e) => this.setState({ stakeAmount: e.target.value })}
           />
+          <br/>
           <button onClick={this.placeBid}>Place Bid</button>
+          <br/>
           <button onClick={this.showResults}>Show Results</button>
+          <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
         </div>
       </div>
     );
   }
-  
-  
+
+
 }
 
 export default DApp;
