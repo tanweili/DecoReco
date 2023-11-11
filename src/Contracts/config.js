@@ -1,4 +1,4 @@
-export const CONTRACT_NAME_ADDRESS = "0x16CcaD81bd1Abe15fdF968438e0D684312731864";
+export const CONTRACT_NAME_ADDRESS = "0x118BF4BAD1B0Ea8c93B1AF0Ebac7D86612641ba6";
 export const CONTRACT_NAME_ABI = [
     {
         "inputs": [],
@@ -145,6 +145,44 @@ export const CONTRACT_NAME_ABI = [
             }
         ],
         "name": "checkAdminStatus",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_module",
+                "type": "string"
+            }
+        ],
+        "name": "checkModuleExist",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_address",
+                "type": "address"
+            }
+        ],
+        "name": "checkRegisteredStudent",
         "outputs": [
             {
                 "internalType": "bool",

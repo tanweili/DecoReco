@@ -14,7 +14,9 @@ class DApp extends Component {
       courseName: "",
       stakeAmount: "",
       bids: [],
-      isAdmin: false
+      isAdmin: false,
+      courseRegDuration: "",
+      courseRegDeadline: Date.now(),
     };
   }
 
@@ -100,6 +102,32 @@ class DApp extends Component {
     // Add your logic to display results here
   };
 
+  startCourseReg = async () => {
+    const { contract, account, courseRegDuration } = this.state;
+
+    const parsedCourseRegDurationSeconds = parseInt(courseRegDuration);
+    if (isNaN(parsedCourseRegDurationSeconds) || parsedCourseRegDurationSeconds <= 0) {
+      console.error("Invalid open duration. Must be integer (represent seconds).");
+      return;
+    }
+    await contract.methods.startCourseReg(parsedCourseRegDurationSeconds).send({ from: account });
+  };
+  
+  endCourseReg = async () => {
+    const { contract, account } = this.state;
+    const courseRegDeadline = await contract.methods.endTime().call();
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    console.log(courseRegStarted);
+    console.log(courseRegDeadline);
+    console.log(currentTimestamp);
+    if (courseRegDeadline <= currentTimestamp) {
+      await contract.methods.endCourseReg().send({ from: account });
+    } else {
+      console.log("It is not time yet.");
+    }
+  };
+
   render() {
     const { isAdmin } = this.state;
   
@@ -107,18 +135,12 @@ class DApp extends Component {
       <div className="App-header">
         <p>DecoReco</p>
         <p>Metamask Address: {this.state.account}</p>
+        <p>Contract Address: {CONTRACT_NAME_ADDRESS}</p>
         <div className="Align-center">
           <button onClick={this.registerStudent}>Register Student</button>
           <button onClick={this.deregisterStudent}>De-register Student</button>
           
         </div>
-        {isAdmin && (
-          <div>
-            {
-              <button onClick={this.checkAdmin}>Check Admin</button>
-            }
-          </div>
-        )}
         {this.state.bids.length > 0 && (
           <div>
             <h3>Current Bids:</h3>
@@ -149,7 +171,39 @@ class DApp extends Component {
           <button onClick={this.showResults}>Show Results</button>
           <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
+          <br/>
         </div>
+
+        {isAdmin && (
+          <div>
+            Admin functions below
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Open Duration"
+              onChange={(e) => this.setState({ courseRegDuration: e.target.value })}
+            />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.startCourseReg}>Start Course Registration</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.endCourseReg}>End Course Registration</button>
+            }
+          </div>
+        )}
       </div>
     );
   }

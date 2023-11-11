@@ -130,12 +130,12 @@ contract DecoReco {
         emit StartedNotification(block.timestamp, endTime);
     }
 
-    function endCourseReg() public onlyOwner() {
+    function endCourseReg() public onlyOwner {
         courseRegStarted = false;
 
         for (uint256 i = 0; i < studentAddresses.length; i++) {
-        address studentAddress = studentAddresses[i];
-        registeredStudents[studentAddress].eDollars = 1000;
+            address studentAddress = studentAddresses[i];
+            registeredStudents[studentAddress].eDollars = 1000;
         }
 
         for (uint256 i = 0; i < moduleCodes.length; i++) {
