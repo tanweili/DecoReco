@@ -31,7 +31,11 @@ class DApp extends Component {
         const web3 = new Web3(window.ethereum);
         const contract = new web3.eth.Contract(CONTRACT_NAME_ABI, CONTRACT_NAME_ADDRESS);
 
-        this.setState({ web3, account, contract });
+        // Check admin status and set the state
+        const isAdmin = await contract.methods.checkAdminStatus(account).call({ from: account });
+
+        this.setState({ web3, account, contract, isAdmin });
+        
       } else {
         console.error("No Ethereum account is connected.");
       }
@@ -42,14 +46,22 @@ class DApp extends Component {
 
   checkAdmin = async () => {
     const { contract, account } = this.state;
+    const isAdmin = await contract.methods.checkAdminStatus(account).call({ from: account });
     const test = await contract.methods.checkAdminStatus(account).call({ from: account });
     console.log(test);
+    this.setState({ isAdmin });
   };
 
   // Function to register a student
   registerStudent = async () => {
     const { contract, account } = this.state;
     await contract.methods.registerStudent().send({ from: account });
+  };
+
+  // Function to de-register a student
+  deregisterStudent = async () => {
+    const { contract, account } = this.state;
+    await contract.methods.deregisterStudent().send({ from: account });
   };
 
   // Function to place a bid
@@ -89,13 +101,24 @@ class DApp extends Component {
   };
 
   render() {
+    const { isAdmin } = this.state;
+  
     return (
       <div className="App-header">
         <p>DecoReco</p>
         <p>Metamask Address: {this.state.account}</p>
         <div className="Align-center">
           <button onClick={this.registerStudent}>Register Student</button>
+          <button onClick={this.deregisterStudent}>De-register Student</button>
+          
         </div>
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.checkAdmin}>Check Admin</button>
+            }
+          </div>
+        )}
         {this.state.bids.length > 0 && (
           <div>
             <h3>Current Bids:</h3>
@@ -126,12 +149,11 @@ class DApp extends Component {
           <button onClick={this.showResults}>Show Results</button>
           <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
-          <br/>
-          <button onClick={this.checkAdmin}>check admin</button>
         </div>
       </div>
     );
   }
+  
 }
 
 export default DApp;
