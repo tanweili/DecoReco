@@ -42,6 +42,14 @@ contract DecoReco {
         return admins[_address];
     }
 
+    function checkRegisteredStudent(address _address) public view returns (bool) {
+        return registeredStudents[_address].isRegistered;
+    }
+
+    function checkModuleExist(string memory _module) public view returns (bool) {
+        return modules[_module].isAvailable;
+    }
+
     function registerStudent() public {
         require(registeredStudents[msg.sender].isRegistered == false, "You have already registered for course registration.");
         registeredStudents[msg.sender] = Student(msg.sender, 1000, true);
