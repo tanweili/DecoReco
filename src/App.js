@@ -14,22 +14,7 @@ class DApp extends Component {
       courseName: "",
       stakeAmount: "",
       bids: [],
-      isAdmin: false,
-      functionSignatures: {
-        "42979658": "registerStudent()",
-        "d63bdcf4": "bidForModule(string,uint256)",
-        "447280bd": "checkAdminStatus(address)",
-        "b07cb02e": "createModule(string,string,string,uint256)",
-        "5f3bc387": "deleteModule(string)",
-        "f3e51b47": "deregisterStudent()",
-        "a92587d7": "endCourseReg()",
-        "3197cbb6": "endTime()",
-        "d29987bd": "startCourseReg(uint256)",
-        "b5ab682d": "studentAddresses(uint256)",
-        "e2687415": "updateModule(string,string,string,uint256)",
-        "0af28114": "viewModule(string)",
-        "06e6bfef": "withdrawBidForModule(string)"
-      }
+      isAdmin: false
     };
   }
 
@@ -54,6 +39,12 @@ class DApp extends Component {
       console.error("Metamask is not installed or not enabled");
     }
   }
+
+  checkAdmin = async () => {
+    const { contract, account } = this.state;
+    const test = await contract.methods.checkAdminStatus(account).call({ from: account });
+    console.log(test);
+  };
 
   // Function to register a student
   registerStudent = async () => {
@@ -135,6 +126,8 @@ class DApp extends Component {
           <button onClick={this.showResults}>Show Results</button>
           <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
+          <br/>
+          <button onClick={this.checkAdmin}>check admin</button>
         </div>
       </div>
     );
