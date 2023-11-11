@@ -1,4 +1,4 @@
-export const CONTRACT_NAME_ADDRESS = "0xdb90fDc108C846dAB47F9410B5D1a650652750BA";
+export const CONTRACT_NAME_ADDRESS = "0x37fbC55199b68Ed4771Ef82d6cE7E573A665B393";
 export const CONTRACT_NAME_ABI = [
 	{
 		"inputs": [
@@ -17,6 +17,49 @@ export const CONTRACT_NAME_ABI = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "startTime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "endTime",
+				"type": "uint256"
+			}
+		],
+		"name": "StartedNotification",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "moduleName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address[]",
+				"name": "enrolledStudents",
+				"type": "address[]"
+			}
+		],
+		"name": "bidResults",
+		"type": "event"
 	},
 	{
 		"inputs": [
@@ -79,49 +122,6 @@ export const CONTRACT_NAME_ABI = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "startTime",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "endTime",
-				"type": "uint256"
-			}
-		],
-		"name": "StartedNotification",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "moduleName",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "address[]",
-				"name": "enrolledStudents",
-				"type": "address[]"
-			}
-		],
-		"name": "bidResults",
-		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -191,6 +191,25 @@ export const CONTRACT_NAME_ABI = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "checkAdminStatus",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "endTime",
 		"outputs": [
@@ -198,6 +217,25 @@ export const CONTRACT_NAME_ABI = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "studentAddresses",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",

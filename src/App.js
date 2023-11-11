@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Web3 from "web3";
 import { CONTRACT_NAME_ABI, CONTRACT_NAME_ADDRESS } from "./Contracts/config.js";
 import './App.css';
-import logo from "./logo.svg"
 
 class DApp extends Component {
   constructor(props) {
@@ -16,6 +15,21 @@ class DApp extends Component {
       stakeAmount: "",
       bids: [],
       isAdmin: false,
+      functionSignatures: {
+        "42979658": "registerStudent()",
+        "d63bdcf4": "bidForModule(string,uint256)",
+        "447280bd": "checkAdminStatus(address)",
+        "b07cb02e": "createModule(string,string,string,uint256)",
+        "5f3bc387": "deleteModule(string)",
+        "f3e51b47": "deregisterStudent()",
+        "a92587d7": "endCourseReg()",
+        "3197cbb6": "endTime()",
+        "d29987bd": "startCourseReg(uint256)",
+        "b5ab682d": "studentAddresses(uint256)",
+        "e2687415": "updateModule(string,string,string,uint256)",
+        "0af28114": "viewModule(string)",
+        "06e6bfef": "withdrawBidForModule(string)"
+      }
     };
   }
 
@@ -43,28 +57,27 @@ class DApp extends Component {
 
   // Function to register a student
   registerStudent = async () => {
-    const { contract, studentName, account } = this.state;
-    await contract.methods.registerStudent(studentName).send({ from: account });
+    const { contract, account } = this.state;
+    await contract.methods.registerStudent().send({ from: account });
   };
 
   // Function to place a bid
   placeBid = async () => {
     const { contract, courseName, stakeAmount, account } = this.state;
-  
+
     // Validate that the stakeAmount is a valid number
     const parsedStakeAmount = parseFloat(stakeAmount);
     if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
       console.error("Invalid stake amount");
       return;
     }
-  
+
     // Convert the stakeAmount to Wei
     const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
-  
+
     // Send the bid to the contract
     await contract.methods.bidForModule(courseName, formattedStakeAmount).send({ from: account });
   };
-  
 
   // Function to remove a bid
   removeBid = async (courseName) => {
@@ -90,12 +103,6 @@ class DApp extends Component {
         <p>DecoReco</p>
         <p>Metamask Address: {this.state.account}</p>
         <div className="Align-center">
-          <input
-            type="text"
-            placeholder="Student Name"
-            onChange={(e) => this.setState({ studentName: e.target.value })}
-          />
-          <br />
           <button onClick={this.registerStudent}>Register Student</button>
         </div>
         {this.state.bids.length > 0 && (
