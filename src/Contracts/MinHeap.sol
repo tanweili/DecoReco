@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 contract MinHeap {
     struct Bid {
         address studentAddress;
-        uint16 amount;
+        uint256 amount;
     }
 
     Bid[] private minHeap;
-    uint16 maxCapacity;
+uint256 maxCapacity;
     mapping(address => bool) private admins;
 
-    constructor(uint16 _maxCapacity) {
+    constructor(uint256 _maxCapacity) {
         admins[0x386703857E714284e154a7d937348d2d88a702D8] = true; // Wei Li
         admins[0xF3454f923316E665C16C4591D7c0B5aA2b12a201] = true; // Winnie
         admins[0xaB066AeA51c007923885d8949128325198467F67] = true; // Wraine
@@ -28,7 +28,7 @@ contract MinHeap {
         return minHeap;
     }
 
-    function insert(uint16 _amount, address _studentAddress) public {
+    function insert(uint256 _amount, address _studentAddress) public {
         if (minHeap.length >= maxCapacity && _amount <= minHeap[0].amount) {
             return;
         }
@@ -36,14 +36,14 @@ contract MinHeap {
             extractMin();
         }
         minHeap.push(Bid(_studentAddress, _amount));
-        uint16 currentIndex = (uint16)(minHeap.length) - 1;
+        uint256 currentIndex = (uint16)(minHeap.length) - 1;
         bubbleUp(currentIndex);
     }
 
-    function extractMin() public returns (uint16) {
+    function extractMin() public returns (uint256) {
         require(minHeap.length > 0, "Heap is empty");
-        uint16 minValue = minHeap[0].amount;
-        uint16 lastIndex = (uint16)(minHeap.length) - 1;
+        uint256 minValue = minHeap[0].amount;
+        uint256 lastIndex = (uint256)(minHeap.length) - 1;
         minHeap[0] = minHeap[lastIndex];
         minHeap.pop();
         bubbleDown(0);
@@ -51,24 +51,24 @@ contract MinHeap {
     }
 
     function removeByAddress(address addressToRemove) public {
-        uint16 indexToRemove = (uint16)(minHeap.length);
-        for (uint16 i = 0; i < minHeap.length; i++) {
+        uint256 indexToRemove = (uint256)(minHeap.length);
+        for (uint256 i = 0; i < minHeap.length; i++) {
             if (minHeap[i].studentAddress == addressToRemove) {
                 indexToRemove = i;
                 break;
             }
         }
         if (indexToRemove != minHeap.length) {
-            uint16 lastIndex = (uint16)(minHeap.length) - 1;
+            uint256 lastIndex = (uint256)(minHeap.length) - 1;
             minHeap[indexToRemove] = minHeap[lastIndex];
             minHeap.pop();
             bubbleDown(indexToRemove);
         }
     }
 
-    function bubbleUp(uint16 index) private {
+    function bubbleUp(uint256 index) private {
         while (index > 0) {
-            uint16 parentIndex = (index - 1) / 2;
+            uint256 parentIndex = (index - 1) / 2;
             if (minHeap[index].amount < minHeap[parentIndex].amount) {
                 Bid memory temp = minHeap[index];
                 minHeap[index] = minHeap[parentIndex];
@@ -80,10 +80,10 @@ contract MinHeap {
         }
     }
 
-    function bubbleDown(uint16 index) private {
-        uint16 leftChildIndex;
-        uint16 rightChildIndex;
-        uint16 smallestChildIndex;
+    function bubbleDown(uint256 index) private {
+        uint256 leftChildIndex;
+        uint256 rightChildIndex;
+        uint256 smallestChildIndex;
 
         while (true) {
             leftChildIndex = 2 * index + 1;

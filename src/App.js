@@ -50,12 +50,21 @@ class DApp extends Component {
   // Function to place a bid
   placeBid = async () => {
     const { contract, courseName, stakeAmount, account } = this.state;
-
-    // Convert the stakeAmount to a suitable format
-    const formattedStakeAmount = this.state.web3.utils.toWei(stakeAmount, "ether");
-
+  
+    // Validate that the stakeAmount is a valid number
+    const parsedStakeAmount = parseFloat(stakeAmount);
+    if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
+      console.error("Invalid stake amount");
+      return;
+    }
+  
+    // Convert the stakeAmount to Wei
+    const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
+  
+    // Send the bid to the contract
     await contract.methods.bidForModule(courseName, formattedStakeAmount).send({ from: account });
   };
+  
 
   // Function to remove a bid
   removeBid = async (courseName) => {
@@ -78,7 +87,6 @@ class DApp extends Component {
   render() {
     return (
       <div className="App-header">
-        <img className="App-logo" src={logo} alt="Logo" />
         <p>DecoReco</p>
         <p>Metamask Address: {this.state.account}</p>
         <div className="Align-center">

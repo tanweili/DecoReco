@@ -8,9 +8,9 @@ export const CONTRACT_NAME_ABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint16",
+				"internalType": "uint256",
 				"name": "_amount",
-				"type": "uint16"
+				"type": "uint256"
 			}
 		],
 		"name": "bidForModule",
@@ -36,9 +36,9 @@ export const CONTRACT_NAME_ABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint16",
+				"internalType": "uint256",
 				"name": "_maxCapacity",
-				"type": "uint16"
+				"type": "uint256"
 			}
 		],
 		"name": "createModule",
@@ -167,9 +167,9 @@ export const CONTRACT_NAME_ABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint16",
+				"internalType": "uint256",
 				"name": "_maxCapacity",
-				"type": "uint16"
+				"type": "uint256"
 			}
 		],
 		"name": "updateModule",
@@ -224,9 +224,9 @@ export const CONTRACT_NAME_ABI = [
 				"type": "string"
 			},
 			{
-				"internalType": "uint16",
+				"internalType": "uint256",
 				"name": "",
-				"type": "uint16"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

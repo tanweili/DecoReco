@@ -10,7 +10,7 @@ contract DecoReco {
     address[] public studentAddresses;
     mapping(string => Module) private modules;
     mapping(string => MinHeap) private Bids;
-    mapping(string => mapping (address => uint16)) private BidMade;
+    mapping(string => mapping (address => uint256)) private BidMade;
     bool private courseRegStarted;
     uint256 public endTime;
     event StartedNotification(uint256 startTime, uint256 endTime);
@@ -60,7 +60,7 @@ contract DecoReco {
         }
     }
 
-    function createModule(string calldata _moduleCode, string calldata _moduleName, string calldata _moduleDescription, uint16 _maxCapacity) public onlyOwner {
+    function createModule(string calldata _moduleCode, string calldata _moduleName, string calldata _moduleDescription, uint256 _maxCapacity) public onlyOwner {
         require(!courseRegStarted, "Cannot modify modules while course registration is active.");
         require(modules[_moduleCode].isAvailable == false, "Module already exists.");
         moduleCodes.push(_moduleCode);
@@ -68,12 +68,12 @@ contract DecoReco {
         Bids[_moduleCode] = new MinHeap(_maxCapacity);
     }
 
-    function viewModule(string calldata _moduleCode) public view returns (string memory, string memory, uint16) {
+    function viewModule(string calldata _moduleCode) public view returns (string memory, string memory, uint256) {
         require(modules[_moduleCode].isAvailable == true, "Module does not exists.");
         return (modules[_moduleCode].moduleName, modules[_moduleCode].moduleDescription, modules[_moduleCode].maxCapacity);
     }
 
-    function updateModule(string calldata _moduleCode, string calldata _moduleName, string calldata _moduleDescription, uint16 _maxCapacity) public onlyOwner {
+    function updateModule(string calldata _moduleCode, string calldata _moduleName, string calldata _moduleDescription, uint256 _maxCapacity) public onlyOwner {
         require(!courseRegStarted, "Cannot modify modules while course registration is active.");
         require(modules[_moduleCode].isAvailable == true, "Module does not exists.");
         modules[_moduleCode] = Module(_moduleName, _moduleDescription, _maxCapacity, true);
@@ -97,7 +97,7 @@ contract DecoReco {
         moduleCodes.pop();
     }
 
-    function bidForModule(string calldata _moduleCode, uint16 _amount) public onlyRegisteredStudents {
+    function bidForModule(string calldata _moduleCode, uint256 _amount) public onlyRegisteredStudents {
         require(courseRegStarted, "Course registration has not started yet.");
         require(block.timestamp <= endTime, "Course registration has ended.");
         require(_amount > 0, "Bid amount must be more than 0.");
@@ -142,19 +142,19 @@ contract DecoReco {
 
     struct Student {
         address studentAddress;
-        uint16 eDollars;
+        uint256 eDollars;
         bool isRegistered;
     }
 
     struct Module {
         string moduleName;
         string moduleDescription;
-        uint16 maxCapacity;
+        uint256 maxCapacity;
         bool isAvailable;
     }
 
     struct Bid {
         address studentAddress;
-        uint16 amount;
+        uint256 amount;
     }
 }
