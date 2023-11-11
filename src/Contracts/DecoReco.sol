@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 import "./MinHeap.sol";
 
 contract DecoReco {
-    mapping(address => bool) private admins;
-    mapping(address => Student) private registeredStudents;
-    string[] private moduleCodes;
+    mapping(address => bool) public admins;
+    mapping(address => Student) public registeredStudents;
+    string[] public moduleCodes;
     address[] public studentAddresses;
-    mapping(string => Module) private modules;
-    mapping(string => MinHeap) private Bids;
-    mapping(string => mapping (address => uint256)) private BidMade;
-    bool private courseRegStarted;
+    mapping(string => Module) public modules;
+    mapping(string => MinHeap) public Bids;
+    mapping(string => mapping (address => uint256)) public BidMade;
+    bool public courseRegStarted;
     uint256 public endTime;
     event StartedNotification(uint256 startTime, uint256 endTime);
     event resultsPublished(uint256 time);
