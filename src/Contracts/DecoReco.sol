@@ -111,8 +111,10 @@ contract DecoReco {
         require(_amount > 0, "Bid amount must be more than 0.");
         require(modules[_moduleCode].isAvailable == true, "Cannot bid for a non existent module.");
         require(registeredStudents[msg.sender].eDollars >= _amount, "Your bid amount is more than your current remaining eDollars.");
+        require(BidMade[_moduleCode][msg.sender] == 0, "You have already bidded for this module. To change your bid, remove your bid first and bid again.");
         Bids[_moduleCode].insert(_amount, msg.sender);
         registeredStudents[msg.sender].eDollars -= _amount;
+        BidMade[_moduleCode][msg.sender] = _amount;
     }
 
     function withdrawBidForModule(string calldata _moduleCode) public onlyRegisteredStudents {
@@ -130,12 +132,12 @@ contract DecoReco {
         emit StartedNotification(block.timestamp, endTime);
     }
 
-    function endCourseReg() public onlyOwner() {
+    function endCourseReg() public onlyOwner {
         courseRegStarted = false;
 
         for (uint256 i = 0; i < studentAddresses.length; i++) {
-        address studentAddress = studentAddresses[i];
-        registeredStudents[studentAddress].eDollars = 1000;
+            address studentAddress = studentAddresses[i];
+            registeredStudents[studentAddress].eDollars = 1000;
         }
 
         for (uint256 i = 0; i < moduleCodes.length; i++) {
@@ -145,6 +147,13 @@ contract DecoReco {
                 enrolledStudents[j] = heap[j].studentAddress;
             }
             emit bidResults(moduleCodes[i], enrolledStudents);
+            Bids[moduleCodes[i]].resetHeap();
+        }
+
+        for (uint256 i = 0; i < moduleCodes.length; i++) {
+            for (uint256 j = 0; j < studentAddresses.length; j++) {
+                BidMade[moduleCodes[i]][studentAddresses[j]] = 0;
+            }
         }
     }
 
