@@ -17,6 +17,8 @@ class DApp extends Component {
       isAdmin: false,
       courseRegDuration: "",
       courseRegDeadline: Date.now(),
+      results: "",
+      resultsString: "No results yet"
     };
   }
 
@@ -37,7 +39,33 @@ class DApp extends Component {
         const isAdmin = await contract.methods.checkAdminStatus(account).call({ from: account });
 
         this.setState({ web3, account, contract, isAdmin });
-        
+
+        const listenForEvents = async () => {
+          if (contract) {
+            // Subscribe to your event
+            contract.events.bidResults({ fromBlock: 'latest' })
+              .on('data', (event) => {
+                // Access event parameters
+                const results = event.returnValues;
+                console.log('Event data:', results);
+                const resultsString = "";
+                for (let i = 0; i < results.length; i++) {
+                  resultsString += results.moduleName + '\n';
+                  for (let j = 0; j < results.enrolledStudents.length; j++) {
+                    resultsString += results.enrolledStudents[j] + '\n';
+                  }
+                }
+                console.log("results string is " + resultsString);
+                this.setState({results});
+                this.setState({resultsString});
+              })
+              .on('error', (error) => {
+                console.error('Error in event subscription:', error);
+              });
+          }
+        };
+    
+        listenForEvents();
       } else {
         console.error("No Ethereum account is connected.");
       }
@@ -71,7 +99,7 @@ class DApp extends Component {
     const { contract, courseName, stakeAmount, account } = this.state;
 
     // Validate that the stakeAmount is a valid number
-    const parsedStakeAmount = parseFloat(stakeAmount);
+    const parsedStakeAmount = parseInt(stakeAmount);
     if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
       console.error("Invalid stake amount");
       return;
@@ -81,7 +109,7 @@ class DApp extends Component {
     const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
 
     // Send the bid to the contract
-    await contract.methods.bidForModule(courseName, formattedStakeAmount).send({ from: account });
+    await contract.methods.bidForModule(courseName, parsedStakeAmount).send({ from: account });
   };
 
   // Function to remove a bid
@@ -118,13 +146,12 @@ class DApp extends Component {
     const courseRegDeadline = await contract.methods.endTime().call();
     const courseRegStarted = await contract.methods.courseRegStarted().call();
     const currentTimestamp = Math.floor(Date.now() / 1000);
-    console.log(courseRegStarted);
-    console.log(courseRegDeadline);
-    console.log(currentTimestamp);
+    console.log("course reg deadline timestamp is " + courseRegDeadline);
+    console.log("current timestamp is " + currentTimestamp);
     if (courseRegDeadline <= currentTimestamp) {
       await contract.methods.endCourseReg().send({ from: account });
     } else {
-      console.log("It is not time yet.");
+      console.log("It is not time yet to end course reg.");
     }
   };
 
@@ -204,6 +231,9 @@ class DApp extends Component {
             }
           </div>
         )}
+        <p>Results to be shown below</p>
+        <p>{this.state.resultsString}</p>
+        <p>{JSON.stringify(this.state.results)}</p>
       </div>
     );
   }

@@ -19,6 +19,12 @@ contract MinHeap {
         return minHeap;
     }
 
+    function resetHeap() public {
+        while (minHeap.length != 0) {
+            minHeap.pop();
+        }
+    }
+
     function insert(uint256 _amount, address _studentAddress) public {
         if (minHeap.length >= maxCapacity && _amount <= minHeap[0].amount) {
             return;
