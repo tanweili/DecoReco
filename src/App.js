@@ -279,6 +279,63 @@ class DApp extends Component {
     }
   };
 
+  createModule = async () => {
+    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot create module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleName).call();
+    const isAvailable = moduleDetails.isAvailable;
+    if (isAvailable) {
+      console.error("Module already exists.");
+      return;      
+    }
+    const maxCapacityInt = parseInt(maxCapacity);
+    if (isNaN(maxCapacityInt) ||  maxCapacityInt <= 0) {
+      console.error("Invalid module capacity given. Must be positive integer.");
+      return;
+    }
+    await contract.methods.createModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
+  };
+
+  updateModule = async () => {
+    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot update module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleCode).call();
+    console.log(moduleDetails);
+    const isAvailable = moduleDetails.isAvailable;
+    if (!isAvailable) {
+      console.error("Module does not exists yet.");
+      return;      
+    }
+    const maxCapacityInt = parseInt(maxCapacity);
+    if (isNaN(maxCapacityInt) ||  maxCapacityInt <= 0) {
+      console.error("Invalid module capacity given. Must be positive integer.");
+      return;
+    }
+    await contract.methods.updateModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
+  };
+
+  deleteModule = async () => {
+    const { contract, courseRegStarted, moduleName, moduleCode, account } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot delete module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleName).call();
+    const isAvailable = moduleDetails.isAvailable;
+    if (!isAvailable) {
+      console.error("Cannot delete a non-existent module.");
+      return;      
+    }
+    const moduleCodeToDelete = moduleCode;
+    await contract.methods.deleteModule(moduleCodeToDelete).send({ from: account });
+  };
+
   render() {
     const { isAdmin } = this.state;
   
@@ -355,6 +412,71 @@ class DApp extends Component {
           <div>
             {
               <button onClick={this.endCourseReg}>End Course Registration</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Name"
+              onChange={(e) => this.setState({ moduleName: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Code"
+              onChange={(e) => this.setState({ moduleCode: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Description"
+              onChange={(e) => this.setState({ moduleDescription: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Maximum Capacity"
+              onChange={(e) => this.setState({ maxCapacity: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.createModule}>Create New Module</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.updateModule}>Update Existing Module</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.deleteModule}>Delete Existing Module</button>
             }
           </div>
         )}
