@@ -17,8 +17,13 @@ class DApp extends Component {
       isAdmin: false,
       courseRegDuration: "",
       courseRegDeadline: Date.now(),
-      results: "",
-      resultsString: "No results yet"
+      courseRegStarted: false,
+      moduleCode: "",
+      moduleName: "",
+      moduleDescription: "",
+      maxCapacity: "",
+      resultsMap: {},
+      results: ""
     };
   }
 
@@ -40,32 +45,7 @@ class DApp extends Component {
 
         this.setState({ web3, account, contract, isAdmin });
 
-        const listenForEvents = async () => {
-          if (contract) {
-            // Subscribe to your event
-            contract.events.bidResults({ fromBlock: 'latest' })
-              .on('data', (event) => {
-                // Access event parameters
-                const results = event.returnValues;
-                console.log('Event data:', results);
-                const resultsString = "";
-                for (let i = 0; i < results.length; i++) {
-                  resultsString += results.moduleName + '\n';
-                  for (let j = 0; j < results.enrolledStudents.length; j++) {
-                    resultsString += results.enrolledStudents[j] + '\n';
-                  }
-                }
-                console.log("results string is " + resultsString);
-                this.setState({results});
-                this.setState({resultsString});
-              })
-              .on('error', (error) => {
-                console.error('Error in event subscription:', error);
-              });
-          }
-        };
-    
-        listenForEvents();
+        this.listenForEvents();
       } else {
         console.error("No Ethereum account is connected.");
       }
@@ -73,6 +53,50 @@ class DApp extends Component {
       console.error("Metamask is not installed or not enabled");
     }
   }
+
+  listenForEvents = async () => {
+    const {contract, resultsMap} = this.state;
+    if (contract) {
+      // Subscribe to your event
+      contract.events.bidResults({ fromBlock: 'latest' })
+      .on('data', (event) => {
+        // Access event parameters
+        const results = event.returnValues;
+        const resultsJSON = JSON.parse(JSON.stringify(results));
+
+        this.setState((prevState) => {
+          // Create a shallow copy of the existing resultsMap
+          const updatedResultsMap = { ...prevState.resultsMap };
+
+          // Check if the key already exists
+          if (!updatedResultsMap.hasOwnProperty(resultsJSON.moduleName)) {
+            // Append new key-value pair
+            updatedResultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents;
+          }
+
+          // Return the updated state
+          return { resultsMap: updatedResultsMap };
+        });
+      })
+        // .on('data', (event) => {
+        //   // Access event parameters
+        //   const results = event.returnValues;
+        //   const resultsToString = JSON.stringify(results);
+        //   const resultsJSON = JSON.parse(resultsToString);
+        //   console.log('Event data:', results);
+        //   this.setState({results});
+        //   if (resultsMap.hasOwnProperty(resultsJSON.moduleName)) {
+        //     return;
+        //   } else {
+        //     resultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents; 
+        //   }
+        //   // this.setState({resultsMap});
+        // })
+        .on('error', (error) => {
+          console.error('Error in event subscription:', error);
+        });
+    }
+  };
 
   checkAdmin = async () => {
     const { contract, account } = this.state;
@@ -132,27 +156,88 @@ class DApp extends Component {
 
   startCourseReg = async () => {
     const { contract, account, courseRegDuration } = this.state;
-
     const parsedCourseRegDurationSeconds = parseInt(courseRegDuration);
     if (isNaN(parsedCourseRegDurationSeconds) || parsedCourseRegDurationSeconds <= 0) {
       console.error("Invalid open duration. Must be integer (represent seconds).");
       return;
     }
     await contract.methods.startCourseReg(parsedCourseRegDurationSeconds).send({ from: account });
+    const courseRegStarted = true;
+    this.setState({courseRegStarted});
+    const resultsMap = {}
+    this.setState({resultsMap});
   };
   
   endCourseReg = async () => {
     const { contract, account } = this.state;
     const courseRegDeadline = await contract.methods.endTime().call();
-    const courseRegStarted = await contract.methods.courseRegStarted().call();
     const currentTimestamp = Math.floor(Date.now() / 1000);
     console.log("course reg deadline timestamp is " + courseRegDeadline);
     console.log("current timestamp is " + currentTimestamp);
     if (courseRegDeadline <= currentTimestamp) {
       await contract.methods.endCourseReg().send({ from: account });
+      const courseRegStarted = false;
+      this.setState({courseRegStarted});
     } else {
       console.log("It is not time yet to end course reg.");
     }
+  };
+
+  createModule = async () => {
+    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot create module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleName).call();
+    const isAvailable = moduleDetails.isAvailable;
+    if (isAvailable) {
+      console.error("Module already exists.");
+      return;      
+    }
+    const maxCapacityInt = parseInt(maxCapacity);
+    if (isNaN(maxCapacityInt) || maxCapacityInt <= 0) {
+      console.error("Invalid module capacity given. Must be positive integer.");
+      return;
+    }
+    await contract.methods.createModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
+  };
+
+  updateModule = async () => {
+    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot update module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleCode).call();
+    console.log(moduleDetails);
+    const isAvailable = moduleDetails.isAvailable;
+    if (!isAvailable) {
+      console.error("Module does not exists yet.");
+      return;      
+    }
+    const maxCapacityInt = parseInt(maxCapacity);
+    if (isNaN(maxCapacityInt) || maxCapacityInt <= 0) {
+      console.error("Invalid module capacity given. Must be positive integer.");
+      return;
+    }
+    await contract.methods.updateModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
+  };
+
+  deleteModule = async () => {
+    const { contract, courseRegStarted, moduleName, moduleCode, account } = this.state;
+    if (courseRegStarted) {
+      console.error("Cannot delete module while course registration is ongoing.");
+      return;
+    }
+    const moduleDetails = await contract.methods.modules(moduleName).call();
+    const isAvailable = moduleDetails.isAvailable;
+    if (!isAvailable) {
+      console.error("Cannot delete a non-existent module.");
+      return;      
+    }
+    const moduleCodeToDelete = moduleCode;
+    await contract.methods.deleteModule(moduleCodeToDelete).send({ from: account });
   };
 
   render() {
@@ -231,9 +316,80 @@ class DApp extends Component {
             }
           </div>
         )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Name"
+              onChange={(e) => this.setState({ moduleName: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Code"
+              onChange={(e) => this.setState({ moduleCode: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Module Description"
+              onChange={(e) => this.setState({ moduleDescription: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <input length
+              type="text"
+              placeholder="Maximum Capacity"
+              onChange={(e) => this.setState({ maxCapacity: e.target.value })}
+              />
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.createModule}>Create New Module</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.updateModule}>Update Existing Module</button>
+            }
+          </div>
+        )}
+        {isAdmin && (
+          <div>
+            {
+              <button onClick={this.deleteModule}>Delete Existing Module</button>
+            }
+          </div>
+        )}
         <p>Results to be shown below</p>
-        <p>{this.state.resultsString}</p>
-        <p>{JSON.stringify(this.state.results)}</p>
+        <ul>
+        {/* Displaying the hashmap */}
+        {Object.keys(this.state.resultsMap).map((key) => (
+          <li key={key}>
+            {key}: {this.state.resultsMap[key].join(', ')}
+          </li>
+        ))}
+      </ul>
       </div>
     );
   }
