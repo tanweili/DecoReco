@@ -19,7 +19,7 @@ contract DecoReco {
 
     constructor() {
         admins[0x386703857E714284e154a7d937348d2d88a702D8] = true; // Wei Li
-        admins[0xF3454f923316E665C16C4591D7c0B5aA2b12a201] = true; // Winnie
+        admins[0x8be5dBC1F95D19FD58c36e24983221F42d62baD0] = true; // Winnie
         admins[0xaB066AeA51c007923885d8949128325198467F67] = true; // Wraine
         admins[0xb1B880657Bb40A28c6f1e7E05197B7bc51894ad2] = true; // Chi Lin
         moduleCodes.push("EE4032");

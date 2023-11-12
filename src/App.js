@@ -17,8 +17,14 @@ class DApp extends Component {
       isAdmin: false,
       courseRegDuration: "",
       courseRegDeadline: Date.now(),
+      courseRegStarted: false,
+      moduleCode: "",
+      moduleName: "",
+      moduleDescription: "",
+      maxCapacity: "",
+      resultsMap: {},
       results: "",
-      resultsString: "No results yet"
+      
     };
   }
 
@@ -93,6 +99,21 @@ class DApp extends Component {
     const { contract, account } = this.state;
     await contract.methods.deregisterStudent().send({ from: account });
   };
+
+  //Function to get module details
+  async viewModule(moduleCode) {
+    try {
+      const { contract } = this.state;
+      const moduleDetails = await contract.methods.viewModule(moduleCode).call();
+      const [moduleName, moduleDescription, maxCapacity] = moduleDetails;
+      
+      // Update the state with module details
+      this.setState({ moduleName, moduleDescription, maxCapacity });
+    } catch (error) {
+      // catch errow and print it 
+      console.error("Error viewing module:", error.message);
+    }
+  }
 
   // Function to place a bid
   placeBid = async () => {
@@ -184,9 +205,11 @@ class DApp extends Component {
         <div className="Align-center">
           <input
             type="text"
-            placeholder="Course Name"
-            onChange={(e) => this.setState({ courseName: e.target.value })}
+            placeholder="Module Code"
+            onChange={(e) => this.setState({ moduleCode: e.target.value })}
           />
+          <button onClick={this.viewModule}>View Module Details</button>
+          <br/>
           <input
             type="text" // Change the type to text to allow decimal values
             placeholder="Stake Amount"
