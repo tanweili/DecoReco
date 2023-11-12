@@ -160,11 +160,12 @@ class DApp extends Component {
   // Function to place a bid
   placeBid = async () => {
     try {
-      const { contract, courseName, stakeAmount, account, courseRegStarted } = this.state;
+      const { contract, stakeAmount, account, courseRegDeadline, moduleCode } = this.state;
   
       // Check if the course registration is active
-      if (!courseRegStarted) {
-        console.error("Course registration is not active.");
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (currentTimestamp > courseRegDeadline) {
+        console.error("Course registration is not open.");
         return;
       }
   
@@ -183,7 +184,7 @@ class DApp extends Component {
       }
   
       // Send the bid to the contract
-      await contract.methods.bidForModule(courseName, parsedStakeAmount).send({ from: account });
+      await contract.methods.bidForModule(moduleCode, parsedStakeAmount).send({ from: account });
   
       // Add any additional logic or event handling after a successful bid placement
       console.log("Bid placed successfully!");
