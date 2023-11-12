@@ -160,7 +160,7 @@ class DApp extends Component {
   // Function to place a bid
   placeBid = async () => {
     try {
-      const { contract, stakeAmount, account, courseRegDeadline, moduleCode } = this.state;
+      const { contract, stakeAmount, account, courseRegDeadline, moduleCode, bids } = this.state;
   
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -185,21 +185,62 @@ class DApp extends Component {
   
       // Send the bid to the contract
       await contract.methods.bidForModule(moduleCode, parsedStakeAmount).send({ from: account });
-  
-      // Add any additional logic or event handling after a successful bid placement
+      this.setState((prevState) => ({
+        bids: [...prevState.bids, { moduleCode, stakeAmount }],
+      }));
+
       console.log("Bid placed successfully!");
-  
+      // console.log(bids)
+
+      // Add any additional logic or event handling after a successful bid placement
+
     } catch (error) {
       console.error("Error placing bid:", error.message);
     }
   };
   
-
-  // Function to remove a bid
-  removeBid = async (courseName) => {
-    const { contract, account } = this.state;
-    await contract.methods.withdrawBidForModule(courseName).send({ from: account });
+  // withdraw bid
+  withdrawBid = async () => {
+    try {
+      const { contract, moduleCode, account, courseRegDeadline, bids } = this.state;
+  
+      // Check if the course registration is active
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (currentTimestamp > courseRegDeadline) {
+        console.error("Course registration is not open.");
+        return;
+      }
+  
+      // Check if the student is registered
+      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+      if (!isRegistered) {
+        console.error("You are not a registered student.");
+        return;
+      }
+  
+      // Check if the student has a bid for the requested module
+      const hasBid = bids.some(bid => bid.moduleCode === moduleCode);
+      if (!hasBid) {
+        console.error("You do not have a bid for the requested module.");
+        return;
+      }
+  
+      // Withdraw the bid from the contract
+      await contract.methods.withdrawBidForModule(moduleCode).send({ from: account });
+  
+      // Update bids state to reflect the bid withdrawal
+      const updatedBids = bids.filter(bid => bid.moduleCode !== moduleCode);
+      this.setState({ bids: updatedBids });
+  
+      // Add any additional logic or event handling after a successful bid withdrawal
+      console.log("Bid withdrawn successfully!");
+  
+    } catch (error) {
+      console.error("Error withdrawing bid:", error.message);
+    }
   };
+
+
 
   // Function to show current bids
   showBids = async () => {
@@ -253,12 +294,12 @@ class DApp extends Component {
         </div>
         {this.state.bids.length > 0 && (
           <div>
-            <h3>Current Bids:</h3>
+            <p>Current Bids:</p>
             <ul>
               {this.state.bids.map((bid, index) => (
                 <li key={index}>
-                  Course: {bid.courseName}, Stake: {bid.stakeAmount}
-                  <button onClick={() => this.removeBid(bid.courseName)}>Remove Bid</button>
+                  Course: {bid.moduleCode}, Stake: {bid.stakeAmount}
+                  <button onClick={() => this.withdrawBid(bid.moduleCode)}>Remove Bid</button>
                 </li>
               ))}
             </ul>
@@ -279,11 +320,12 @@ class DApp extends Component {
           />
           <br/>
           <button onClick={this.placeBid}>Place Bid</button>
+
           <br/>
-          <button onClick={this.showResults}>Show Results</button>
+          {/* <button onClick={this.showResults}>Show Results</button>
           <br/>
           <button onClick={this.showBids}>Show Current Bids</button>
-          <br/>
+          <br/> */}
         </div>
 
         {isAdmin && (
