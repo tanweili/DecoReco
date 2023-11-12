@@ -317,8 +317,14 @@ class DApp extends Component {
           </div>
         )}
         <p>Results to be shown below</p>
-        <p>{this.state.resultsString}</p>
-        <p>{JSON.stringify(this.state.results)}</p>
+        <ul>
+        {/* Displaying the hashmap */}
+        {Object.keys(this.state.resultsMap).map((key) => (
+          <li key={key}>
+            {key}: {this.state.resultsMap[key].join(', ')}
+          </li>
+        ))}
+      </ul>
       </div>
     );
   }
