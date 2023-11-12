@@ -24,7 +24,9 @@ class DApp extends Component {
       maxCapacity: "",
       resultsMap: {},
       results: "",
-      
+      moduleName_forView: "",
+      moduleDescription_forView: "",
+      maxCapacity_forView: ""
     };
   }
 
@@ -100,20 +102,46 @@ class DApp extends Component {
     await contract.methods.deregisterStudent().send({ from: account });
   };
 
-  //Function to get module details
-  async viewModule(moduleCode) {
+  // Function to view module details
+  viewModuleDetails = async () => {
     try {
-      const { contract } = this.state;
+      const { moduleCode, contract } = this.state;
+      // Add any additional validation for moduleCode if needed
+  
+      // Call the viewModule function to get details
       const moduleDetails = await contract.methods.viewModule(moduleCode).call();
-      const [moduleName, moduleDescription, maxCapacity] = moduleDetails;
-      
+  
+      // Log the moduleDetails to see its structure
+      // console.log("Module Details:", moduleDetails);
+  
+      // Access properties directly from the object
+      const moduleName_forView = moduleDetails[0];
+      const moduleDescription_forView = moduleDetails[1];
+      const maxCapacity_forView = moduleDetails[2];
+  
+      // Log the values
+      // console.log("Module Name:", moduleName_forView);
+      // console.log("Module Description:", moduleDescription_forView);
+      // console.log("Max Capacity:", maxCapacity_forView);
+  
       // Update the state with module details
-      this.setState({ moduleName, moduleDescription, maxCapacity });
+      this.setState((prevState) => ({
+        ...prevState,
+        moduleName_forView,
+        moduleDescription_forView,
+        maxCapacity_forView
+      }), () => {
+        // Log the state after the update
+        console.log(this.state);
+      });
+  
+  
     } catch (error) {
-      // catch errow and print it 
-      console.error("Error viewing module:", error.message);
+      // Catch error and print it
+      console.error("Error viewing module details:", error.message);
     }
-  }
+  };
+  
 
   // Function to place a bid
   placeBid = async () => {
@@ -208,7 +236,7 @@ class DApp extends Component {
             placeholder="Module Code"
             onChange={(e) => this.setState({ moduleCode: e.target.value })}
           />
-          <button onClick={this.viewModule}>View Module Details</button>
+          <button onClick={this.viewModuleDetails}>View Module Details</button>
           <br/>
           <input
             type="text" // Change the type to text to allow decimal values
