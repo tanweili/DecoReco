@@ -1,5 +1,23 @@
-export const CONTRACT_NAME_ADDRESS = "0xA23B30dE5aB5f68650Be16200A8eC59675E8dE9F";
+export const CONTRACT_NAME_ADDRESS = "0xB629078f5022A8353941810ac81bB61687419951";
 export const CONTRACT_NAME_ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_moduleCode",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "bidForModule",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -44,6 +62,68 @@ export const CONTRACT_NAME_ABI = [
 		"type": "event"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_moduleCode",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_moduleName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_moduleDescription",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_maxCapacity",
+				"type": "uint256"
+			}
+		],
+		"name": "createModule",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_moduleCode",
+				"type": "string"
+			}
+		],
+		"name": "deleteModule",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "deregisterStudent",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "endCourseReg",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "registerStudent",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -55,6 +135,79 @@ export const CONTRACT_NAME_ABI = [
 		],
 		"name": "resultsPublished",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_duration",
+				"type": "uint256"
+			}
+		],
+		"name": "startCourseReg",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_moduleCode",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_moduleName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_moduleDescription",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_maxCapacity",
+				"type": "uint256"
+			}
+		],
+		"name": "updateModule",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_moduleCode",
+				"type": "string"
+			}
+		],
+		"name": "withdrawBidForModule",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "admins",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -97,43 +250,6 @@ export const CONTRACT_NAME_ABI = [
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "admins",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_moduleCode",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "bidForModule",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -207,61 +323,6 @@ export const CONTRACT_NAME_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_moduleCode",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_moduleName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_moduleDescription",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_maxCapacity",
-				"type": "uint256"
-			}
-		],
-		"name": "createModule",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_moduleCode",
-				"type": "string"
-			}
-		],
-		"name": "deleteModule",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "deregisterStudent",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "endCourseReg",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "endTime",
 		"outputs": [
@@ -328,13 +389,6 @@ export const CONTRACT_NAME_ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "registerStudent",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -367,19 +421,6 @@ export const CONTRACT_NAME_ABI = [
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
-			}
-		],
-		"name": "startCourseReg",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
@@ -393,34 +434,6 @@ export const CONTRACT_NAME_ABI = [
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_moduleCode",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_moduleName",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_moduleDescription",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_maxCapacity",
-				"type": "uint256"
-			}
-		],
-		"name": "updateModule",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -450,19 +463,6 @@ export const CONTRACT_NAME_ABI = [
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_moduleCode",
-				"type": "string"
-			}
-		],
-		"name": "withdrawBidForModule",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

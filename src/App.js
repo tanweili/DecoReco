@@ -23,7 +23,10 @@ class DApp extends Component {
       moduleDescription: "",
       maxCapacity: "",
       resultsMap: {},
-      results: ""
+      results: "",
+      moduleName_forView: "",
+      moduleDescription_forView: "",
+      maxCapacity_forView: ""
     };
   }
 
@@ -118,23 +121,79 @@ class DApp extends Component {
     await contract.methods.deregisterStudent().send({ from: account });
   };
 
+  // Function to view module details
+  viewModuleDetails = async () => {
+    try {
+      const { moduleCode, contract } = this.state;
+      // Add any additional validation for moduleCode if needed
+  
+      // Call the viewModule function to get details
+      const moduleDetails = await contract.methods.viewModule(moduleCode).call();
+  
+      // Log the moduleDetails to see its structure
+      // console.log("Module Details:", moduleDetails);
+  
+      // Access properties directly from the object
+      const moduleName_forView = moduleDetails[0];
+      const moduleDescription_forView = moduleDetails[1];
+      const maxCapacity_forView = moduleDetails[2];
+  
+      // Update the state with module details
+      this.setState((prevState) => ({
+        ...prevState,
+        moduleName_forView,
+        moduleDescription_forView,
+        maxCapacity_forView
+      }), () => {
+        // Log the state after the update
+        console.log(this.state);
+      });
+  
+  
+    } catch (error) {
+      // Catch error and print it
+      console.error("Error viewing module details:", error.message);
+    }
+  };
+  
+
   // Function to place a bid
   placeBid = async () => {
-    const { contract, courseName, stakeAmount, account } = this.state;
-
-    // Validate that the stakeAmount is a valid number
-    const parsedStakeAmount = parseInt(stakeAmount);
-    if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
-      console.error("Invalid stake amount");
-      return;
+    try {
+      const { contract, stakeAmount, account, courseRegDeadline, moduleCode } = this.state;
+  
+      // Check if the course registration is active
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (currentTimestamp > courseRegDeadline) {
+        console.error("Course registration is not open.");
+        return;
+      }
+  
+      // Check if the student is registered
+      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+      if (!isRegistered) {
+        console.error("You are not a registered student.");
+        return;
+      }
+  
+      // Validate that the stakeAmount is a valid number
+      const parsedStakeAmount = parseInt(stakeAmount);
+      if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
+        console.error("Invalid stake amount");
+        return;
+      }
+  
+      // Send the bid to the contract
+      await contract.methods.bidForModule(moduleCode, parsedStakeAmount).send({ from: account });
+  
+      // Add any additional logic or event handling after a successful bid placement
+      console.log("Bid placed successfully!");
+  
+    } catch (error) {
+      console.error("Error placing bid:", error.message);
     }
-
-    // Convert the stakeAmount to Wei
-    const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
-
-    // Send the bid to the contract
-    await contract.methods.bidForModule(courseName, parsedStakeAmount).send({ from: account });
   };
+  
 
   // Function to remove a bid
   removeBid = async (courseName) => {
@@ -269,9 +328,11 @@ class DApp extends Component {
         <div className="Align-center">
           <input
             type="text"
-            placeholder="Course Name"
-            onChange={(e) => this.setState({ courseName: e.target.value })}
+            placeholder="Module Code"
+            onChange={(e) => this.setState({ moduleCode: e.target.value })}
           />
+          <button onClick={this.viewModuleDetails}>View Module Details</button>
+          <br/>
           <input
             type="text" // Change the type to text to allow decimal values
             placeholder="Stake Amount"
