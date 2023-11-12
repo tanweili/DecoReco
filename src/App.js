@@ -48,32 +48,7 @@ class DApp extends Component {
 
         this.setState({ web3, account, contract, isAdmin });
 
-        const listenForEvents = async () => {
-          if (contract) {
-            // Subscribe to your event
-            contract.events.bidResults({ fromBlock: 'latest' })
-              .on('data', (event) => {
-                // Access event parameters
-                const results = event.returnValues;
-                console.log('Event data:', results);
-                const resultsString = "";
-                for (let i = 0; i < results.length; i++) {
-                  resultsString += results.moduleName + '\n';
-                  for (let j = 0; j < results.enrolledStudents.length; j++) {
-                    resultsString += results.enrolledStudents[j] + '\n';
-                  }
-                }
-                console.log("results string is " + resultsString);
-                this.setState({results});
-                this.setState({resultsString});
-              })
-              .on('error', (error) => {
-                console.error('Error in event subscription:', error);
-              });
-          }
-        };
-    
-        listenForEvents();
+        this.listenForEvents();
       } else {
         console.error("No Ethereum account is connected.");
       }
@@ -81,6 +56,50 @@ class DApp extends Component {
       console.error("Metamask is not installed or not enabled");
     }
   }
+
+  listenForEvents = async () => {
+    const {contract, resultsMap} = this.state;
+    if (contract) {
+      // Subscribe to your event
+      contract.events.bidResults({ fromBlock: 'latest' })
+      .on('data', (event) => {
+        // Access event parameters
+        const results = event.returnValues;
+        const resultsJSON = JSON.parse(JSON.stringify(results));
+
+        this.setState((prevState) => {
+          // Create a shallow copy of the existing resultsMap
+          const updatedResultsMap = { ...prevState.resultsMap };
+
+          // Check if the key already exists
+          if (!updatedResultsMap.hasOwnProperty(resultsJSON.moduleName)) {
+            // Append new key-value pair
+            updatedResultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents;
+          }
+
+          // Return the updated state
+          return { resultsMap: updatedResultsMap };
+        });
+      })
+        // .on('data', (event) => {
+        //   // Access event parameters
+        //   const results = event.returnValues;
+        //   const resultsToString = JSON.stringify(results);
+        //   const resultsJSON = JSON.parse(resultsToString);
+        //   console.log('Event data:', results);
+        //   this.setState({results});
+        //   if (resultsMap.hasOwnProperty(resultsJSON.moduleName)) {
+        //     return;
+        //   } else {
+        //     resultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents; 
+        //   }
+        //   // this.setState({resultsMap});
+        // })
+        .on('error', (error) => {
+          console.error('Error in event subscription:', error);
+        });
+    }
+  };
 
   checkAdmin = async () => {
     const { contract, account } = this.state;
@@ -155,7 +174,7 @@ class DApp extends Component {
     }
 
     // Convert the stakeAmount to Wei
-    const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
+    //const formattedStakeAmount = this.state.web3.utils.toWei(parsedStakeAmount.toString(), "ether");
 
     // Send the bid to the contract
     await contract.methods.bidForModule(courseName, parsedStakeAmount).send({ from: account });
