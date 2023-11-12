@@ -13,8 +13,7 @@ contract DecoReco {
     mapping(string => mapping (address => uint256)) public BidMade;
     bool public courseRegStarted;
     uint256 public endTime;
-    event StartedNotification(uint256 startTime, uint256 endTime);
-    event resultsPublished(uint256 time);
+    event StartedNotification();
     event bidResults(string moduleName, address[] enrolledStudents);
 
     constructor() {
@@ -129,7 +128,7 @@ contract DecoReco {
     function startCourseReg(uint256 _duration) public onlyOwner {
         courseRegStarted = true;
         endTime = block.timestamp + (_duration * 1 seconds);
-        emit StartedNotification(block.timestamp, endTime);
+        emit StartedNotification();
     }
 
     function endCourseReg() public onlyOwner {

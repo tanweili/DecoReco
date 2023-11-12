@@ -17,7 +17,6 @@ class DApp extends Component {
       isAdmin: false,
       courseRegDuration: "",
       courseRegDeadline: Date.now(),
-      courseRegStarted: false,
       moduleCode: "",
       moduleName: "",
       moduleDescription: "",
@@ -48,7 +47,8 @@ class DApp extends Component {
 
         this.setState({ web3, account, contract, isAdmin });
 
-        this.listenForEvents();
+        this.bidResultsEventListener();
+        this.courseRegStartedEventListener();
       } else {
         console.error("No Ethereum account is connected.");
       }
@@ -57,8 +57,8 @@ class DApp extends Component {
     }
   }
 
-  listenForEvents = async () => {
-    const {contract, resultsMap} = this.state;
+  bidResultsEventListener = async () => {
+    const { contract } = this.state;
     if (contract) {
       // Subscribe to your event
       contract.events.bidResults({ fromBlock: 'latest' })
@@ -81,23 +81,25 @@ class DApp extends Component {
           return { resultsMap: updatedResultsMap };
         });
       })
-        // .on('data', (event) => {
-        //   // Access event parameters
-        //   const results = event.returnValues;
-        //   const resultsToString = JSON.stringify(results);
-        //   const resultsJSON = JSON.parse(resultsToString);
-        //   console.log('Event data:', results);
-        //   this.setState({results});
-        //   if (resultsMap.hasOwnProperty(resultsJSON.moduleName)) {
-        //     return;
-        //   } else {
-        //     resultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents; 
-        //   }
-        //   // this.setState({resultsMap});
-        // })
-        .on('error', (error) => {
-          console.error('Error in event subscription:', error);
-        });
+      .on('error', (error) => {
+        console.error('Error in event subscription:', error);
+      });
+    }
+  };
+
+  courseRegStartedEventListener = async () => {
+    const { contract } = this.state;
+    if (contract) {
+      // Subscribe to your event
+      contract.events.StartedNotification({ fromBlock: 'latest' })
+      .on('data', (event) => {
+        const resultsMap = {};
+        this.setState({resultsMap});
+        console.log("courseRegStartedEventListener");
+      })
+      .on('error', (error) => {
+        console.error('Error in event subscription:', error);
+      });
     }
   };
 
@@ -215,28 +217,33 @@ class DApp extends Component {
 
   startCourseReg = async () => {
     const { contract, account, courseRegDuration } = this.state;
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
+    if (courseRegStarted) {
+      console.error("Course registration has already started. Please wait for the current round to finish.");
+      window.alert("DEEZ");
+      return;
+    }
     const parsedCourseRegDurationSeconds = parseInt(courseRegDuration);
     if (isNaN(parsedCourseRegDurationSeconds) || parsedCourseRegDurationSeconds <= 0) {
       console.error("Invalid open duration. Must be integer (represent seconds).");
       return;
     }
     await contract.methods.startCourseReg(parsedCourseRegDurationSeconds).send({ from: account });
-    const courseRegStarted = true;
-    this.setState({courseRegStarted});
-    const resultsMap = {}
-    this.setState({resultsMap});
   };
   
   endCourseReg = async () => {
     const { contract, account } = this.state;
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
+    if (!courseRegStarted) {
+      console.error("Course registration has not start yet.");
+      return;
+    }
     const courseRegDeadline = await contract.methods.endTime().call();
     const currentTimestamp = Math.floor(Date.now() / 1000);
     console.log("course reg deadline timestamp is " + courseRegDeadline);
     console.log("current timestamp is " + currentTimestamp);
     if (courseRegDeadline <= currentTimestamp) {
       await contract.methods.endCourseReg().send({ from: account });
-      const courseRegStarted = false;
-      this.setState({courseRegStarted});
     } else {
       console.log("It is not time yet to end course reg.");
     }
