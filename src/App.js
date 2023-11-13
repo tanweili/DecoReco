@@ -50,10 +50,10 @@ class DApp extends Component {
         this.bidResultsEventListener();
         this.courseRegStartedEventListener();
       } else {
-        console.error("No Ethereum account is connected.");
+        alert("No Ethereum account is connected.");
       }
     } else {
-      console.error("Metamask is not installed or not enabled");
+      alert("Metamask is not installed or not enabled");
     }
   }
 
@@ -82,7 +82,7 @@ class DApp extends Component {
         });
       })
       .on('error', (error) => {
-        console.error('Error in event subscription:', error);
+        alert('Error in event subscription:', error);
       });
     }
   };
@@ -98,7 +98,7 @@ class DApp extends Component {
         console.log("courseRegStartedEventListener");
       })
       .on('error', (error) => {
-        console.error('Error in event subscription:', error);
+        alert('Error in event subscription:', error);
       });
     }
   };
@@ -154,7 +154,7 @@ class DApp extends Component {
   
     } catch (error) {
       // Catch error and print it
-      console.error("Error viewing module details:", error.message);
+      alert("Error viewing module details:", error.message);
     }
   };
   
@@ -167,21 +167,21 @@ class DApp extends Component {
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
       if (currentTimestamp > courseRegDeadline) {
-        console.error("Course registration is not open.");
+        alert("Course registration is not open.");
         return;
       }
   
       // Check if the student is registered
       const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
       if (!isRegistered) {
-        console.error("You are not a registered student.");
+        alert("You are not a registered student.");
         return;
       }
   
       // Validate that the stakeAmount is a valid number
       const parsedStakeAmount = parseInt(stakeAmount);
       if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
-        console.error("Invalid stake amount");
+        alert("Invalid stake amount");
         return;
       }
   
@@ -192,11 +192,10 @@ class DApp extends Component {
       console.log("Bid placed successfully!");
   
     } catch (error) {
-      console.error("Error placing bid:", error.message);
+      alert("Error placing bid:", error.message);
     }
   };
   
-
   // Function to remove a bid
   removeBid = async (courseName) => {
     const { contract, account } = this.state;
@@ -219,13 +218,12 @@ class DApp extends Component {
     const { contract, account, courseRegDuration } = this.state;
     const courseRegStarted = await contract.methods.courseRegStarted().call();
     if (courseRegStarted) {
-      console.error("Course registration has already started. Please wait for the current round to finish.");
-      window.alert("DEEZ");
+      alert("Course registration has already started. Please wait for the current round to finish.");
       return;
     }
     const parsedCourseRegDurationSeconds = parseInt(courseRegDuration);
     if (isNaN(parsedCourseRegDurationSeconds) || parsedCourseRegDurationSeconds <= 0) {
-      console.error("Invalid open duration. Must be integer (represent seconds).");
+      alert("Invalid open duration. Must be integer (represent seconds).");
       return;
     }
     await contract.methods.startCourseReg(parsedCourseRegDurationSeconds).send({ from: account });
@@ -235,7 +233,7 @@ class DApp extends Component {
     const { contract, account } = this.state;
     const courseRegStarted = await contract.methods.courseRegStarted().call();
     if (!courseRegStarted) {
-      console.error("Course registration has not start yet.");
+      alert("Course registration has not start yet.");
       return;
     }
     const courseRegDeadline = await contract.methods.endTime().call();
@@ -252,18 +250,18 @@ class DApp extends Component {
   createModule = async () => {
     const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
     if (courseRegStarted) {
-      console.error("Cannot create module while course registration is ongoing.");
+      alert("Cannot create module while course registration is ongoing.");
       return;
     }
     const moduleDetails = await contract.methods.modules(moduleName).call();
     const isAvailable = moduleDetails.isAvailable;
     if (isAvailable) {
-      console.error("Module already exists.");
+      alert("Module already exists.");
       return;      
     }
     const maxCapacityInt = parseInt(maxCapacity);
     if (isNaN(maxCapacityInt) || maxCapacityInt <= 0) {
-      console.error("Invalid module capacity given. Must be positive integer.");
+      alert("Invalid module capacity given. Must be positive integer.");
       return;
     }
     await contract.methods.createModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
@@ -272,19 +270,19 @@ class DApp extends Component {
   updateModule = async () => {
     const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
     if (courseRegStarted) {
-      console.error("Cannot update module while course registration is ongoing.");
+      alert("Cannot update module while course registration is ongoing.");
       return;
     }
     const moduleDetails = await contract.methods.modules(moduleCode).call();
     console.log(moduleDetails);
     const isAvailable = moduleDetails.isAvailable;
     if (!isAvailable) {
-      console.error("Module does not exists yet.");
+      alert("Module does not exists yet.");
       return;      
     }
     const maxCapacityInt = parseInt(maxCapacity);
     if (isNaN(maxCapacityInt) || maxCapacityInt <= 0) {
-      console.error("Invalid module capacity given. Must be positive integer.");
+      alert("Invalid module capacity given. Must be positive integer.");
       return;
     }
     await contract.methods.updateModule(moduleCode, moduleName, moduleDescription, maxCapacityInt).send({ from: account });
@@ -293,13 +291,13 @@ class DApp extends Component {
   deleteModule = async () => {
     const { contract, courseRegStarted, moduleName, moduleCode, account } = this.state;
     if (courseRegStarted) {
-      console.error("Cannot delete module while course registration is ongoing.");
+      alert("Cannot delete module while course registration is ongoing.");
       return;
     }
     const moduleDetails = await contract.methods.modules(moduleName).call();
     const isAvailable = moduleDetails.isAvailable;
     if (!isAvailable) {
-      console.error("Cannot delete a non-existent module.");
+      alert("Cannot delete a non-existent module.");
       return;      
     }
     const moduleCodeToDelete = moduleCode;
