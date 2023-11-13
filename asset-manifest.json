@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/decoreco/static/css/main.ed5cf515.css",
-    "main.js": "/decoreco/static/js/main.7c929310.js",
-    "static/js/787.0c3f432a.chunk.js": "/decoreco/static/js/787.0c3f432a.chunk.js",
-    "index.html": "/decoreco/index.html",
-    "main.ed5cf515.css.map": "/decoreco/static/css/main.ed5cf515.css.map",
-    "main.7c929310.js.map": "/decoreco/static/js/main.7c929310.js.map",
-    "787.0c3f432a.chunk.js.map": "/decoreco/static/js/787.0c3f432a.chunk.js.map"
+    "main.css": "/DecoReco/static/css/main.ed5cf515.css",
+    "main.js": "/DecoReco/static/js/main.52e88257.js",
+    "static/js/787.0c3f432a.chunk.js": "/DecoReco/static/js/787.0c3f432a.chunk.js",
+    "index.html": "/DecoReco/index.html",
+    "main.ed5cf515.css.map": "/DecoReco/static/css/main.ed5cf515.css.map",
+    "main.52e88257.js.map": "/DecoReco/static/js/main.52e88257.js.map",
+    "787.0c3f432a.chunk.js.map": "/DecoReco/static/js/787.0c3f432a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ed5cf515.css",
-    "static/js/main.7c929310.js"
+    "static/js/main.52e88257.js"
   ]
 }
