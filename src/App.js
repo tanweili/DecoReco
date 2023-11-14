@@ -107,12 +107,22 @@ class DApp extends Component {
   // Function to register a student
   registerStudent = async () => {
     const { contract, account } = this.state;
+    const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+    if (isRegistered) {
+      alert("You have already registered.");
+      return;
+    }
     await contract.methods.registerStudent().send({ from: account });
   };
 
   // Function to de-register a student
   deregisterStudent = async () => {
     const { contract, account } = this.state;
+    const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+    if (!isRegistered) {
+      alert("You have not registered.");
+      return;
+    }
     await contract.methods.deregisterStudent().send({ from: account });
   };
 
@@ -157,32 +167,32 @@ class DApp extends Component {
   
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
+
+      // Check if the student is registered
+      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+
+      // Validate that the stakeAmount is a valid number
+      const parsedStakeAmount = parseInt(stakeAmount);
       if (currentTimestamp > courseRegDeadline) {
         alert("Course registration is not open.");
         return;
       }
-  
-      // Check if the student is registered
-      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
-      if (!isRegistered) {
+      else if (!isRegistered) {
         alert("You are not a registered student.");
         return;
       }
-  
-      // Validate that the stakeAmount is a valid number
-      const parsedStakeAmount = parseInt(stakeAmount);
-      if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
+      else if (isNaN(parsedStakeAmount) || parsedStakeAmount <= 0) {
         alert("Invalid stake amount");
         return;
       }
-  
+      else {
       // Send the bid to the contract
       await contract.methods.bidForModule(moduleCode, parsedStakeAmount).send({ from: account });
       this.setState((prevState) => ({
         bids: [...prevState.bids, { moduleCode, stakeAmount }],
       }));
-
       alert("Bid placed successfully!");
+    }
     } catch (error) {
       alert("Error placing bid:", error.message);
     }
@@ -195,26 +205,27 @@ class DApp extends Component {
   
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
+  
+      // Check if the student is registered
+      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
+    
+      // Check if the student has a bid for the requested module
+      const hasBid = bids.some(bid => bid.moduleCode === moduleCode);
+
       if (currentTimestamp > courseRegDeadline) {
         console.error("Course registration is not open.");
         return;
       }
-  
-      // Check if the student is registered
-      const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
-      if (!isRegistered) {
+      else if (!isRegistered) {
         console.error("You are not a registered student.");
         return;
       }
-  
-      // Check if the student has a bid for the requested module
-      const hasBid = bids.some(bid => bid.moduleCode === moduleCode);
-      if (!hasBid) {
+      else if (!hasBid) {
         console.error("You do not have a bid for the requested module.");
         return;
       }
-  
-      // Withdraw the bid from the contract
+      else {
+        // Withdraw the bid from the contract
       await contract.methods.withdrawBidForModule(moduleCode).send({ from: account });
   
       // Update bids state to reflect the bid withdrawal
@@ -223,7 +234,8 @@ class DApp extends Component {
   
       // Add any additional logic or event handling after a successful bid withdrawal
       alert("Bid withdrawn successfully!");
-  
+      }
+
     } catch (error) {
       console.error("Error withdrawing bid:", error.message);
     }
