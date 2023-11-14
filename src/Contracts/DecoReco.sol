@@ -171,6 +171,7 @@ contract DecoReco {
                 BidMade[moduleCodes[i]][studentAddresses[j]] = 0;
             }
         }
+        courseRegStarted = false;
     }
 
     struct Student {

@@ -46,9 +46,6 @@ class DApp extends Component {
         const isAdmin = await contract.methods.checkAdminStatus(account).call({ from: account });
 
         this.setState({ web3, account, contract, isAdmin });
-
-        // this.bidResultsEventListener();
-        // this.courseRegStartedEventListener();
       } else {
         alert("No Ethereum account is connected.");
       }
@@ -56,61 +53,6 @@ class DApp extends Component {
       alert("Metamask is not installed or not enabled");
     }
   }
-
-  // bidResultsEventListener = async () => {
-  //   const { contract } = this.state;
-  //   if (contract) {
-  //     // Subscribe to your event
-  //     contract.events.allEvents({ fromBlock: 'latest' })
-  //       .on('data', (event) => {
-  //         if (event.event == "bidResults") {
-  //           // Access event parameters
-  //           const results = event.returnValues;
-  //           const resultsJSON = JSON.parse(JSON.stringify(results));
-
-  //           this.setState((prevState) => {
-  //             // Create a shallow copy of the existing resultsMap
-  //             const updatedResultsMap = { ...prevState.resultsMap };
-
-  //             updatedResultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents;
-  //             // Return the updated state
-  //             console.log(updatedResultsMap);
-  //             return { resultsMap: updatedResultsMap };
-  //           });
-  //         }
-  //       })
-  //       .on('error', (error) => {
-  //         alert('Error in event subscription:', error);
-  //       })
-  //       .on('connected', (error) => {
-  //         console.log('bidResultsEventListener connected');
-  //       });
-  //     console.log("Bid results event listener EOF reached");
-  //   }
-  // };
-
-  // courseRegStartedEventListener = async () => {
-  //   const { contract } = this.state;
-  //   if (contract) {
-  //     // Subscribe to your event
-  //     contract.events.allEvents({ fromBlock: 'latest' })
-  //       .on('data', (event) => {
-  //         if (event.event == "StartedNotification") {
-  //           const resultsMap = {};
-  //           this.setState({ resultsMap });
-  //           const bids = [];
-  //           this.setState({ bids });
-  //         }
-  //       })
-  //       .on('error', (error) => {
-  //         alert('Error in event subscription:', error);
-  //       })
-  //       .on('connected', (error) => {
-  //         console.log('courseRegStartedEventListener connected');
-  //       });
-  //     console.log("Course reg started event listener EOF reached");
-  //   }
-  // };
 
   // Function to register a student
   registerStudent = async () => {
@@ -170,17 +112,23 @@ class DApp extends Component {
   // Function to place a bid
   placeBid = async () => {
     try {
-      const { contract, stakeAmount, account, courseRegDeadline, moduleCode } = this.state;
+      const { contract, stakeAmount, account, moduleCode } = this.state;
 
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
-
+      const courseRegDeadline = await contract.methods.endTime().call();
       // Check if the student is registered
       const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
 
       // Validate that the stakeAmount is a valid number
       const parsedStakeAmount = parseInt(stakeAmount);
-      if (currentTimestamp > courseRegDeadline) {
+      const moduleDetails = await contract.methods.modules(moduleCode).call();
+      const isAvailable = moduleDetails.isAvailable;
+      if (!isAvailable) {
+        alert("Invalid module code given.");
+        return;
+      }
+      else if (currentTimestamp > courseRegDeadline) {
         alert("Course registration is not open.");
         return;
       }
@@ -208,11 +156,11 @@ class DApp extends Component {
   // withdraw bid
   withdrawBid = async () => {
     try {
-      const { contract, moduleCode, account, courseRegDeadline, bids } = this.state;
+      const { contract, moduleCode, account, bids } = this.state;
 
       // Check if the course registration is active
       const currentTimestamp = Math.floor(Date.now() / 1000);
-
+      const courseRegDeadline = await contract.methods.endTime().call();
       // Check if the student is registered
       const isRegistered = await contract.methods.checkRegisteredStudent(account).call({ from: account });
 
@@ -350,12 +298,14 @@ class DApp extends Component {
   };
 
   createModule = async () => {
-    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    const { contract, account, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
     if (courseRegStarted) {
       alert("Cannot create module while course registration is ongoing.");
       return;
     }
-    const moduleDetails = await contract.methods.modules(moduleName).call();
+    console.log(moduleCode);
+    const moduleDetails = await contract.methods.modules(moduleCode).call();
     const isAvailable = moduleDetails.isAvailable;
     if (isAvailable) {
       alert("Module already exists.");
@@ -370,7 +320,8 @@ class DApp extends Component {
   };
 
   updateModule = async () => {
-    const { contract, account, courseRegStarted, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    const { contract, account, moduleCode, moduleName, moduleDescription, maxCapacity } = this.state;
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
     if (courseRegStarted) {
       alert("Cannot update module while course registration is ongoing.");
       return;
@@ -390,12 +341,13 @@ class DApp extends Component {
   };
 
   deleteModule = async () => {
-    const { contract, courseRegStarted, moduleName, moduleCode, account } = this.state;
+    const { contract, moduleName, moduleCode, account } = this.state;
+    const courseRegStarted = await contract.methods.courseRegStarted().call();
     if (courseRegStarted) {
       alert("Cannot delete module while course registration is ongoing.");
       return;
     }
-    const moduleDetails = await contract.methods.modules(moduleName).call();
+    const moduleDetails = await contract.methods.modules(moduleCode).call();
     const isAvailable = moduleDetails.isAvailable;
     if (!isAvailable) {
       alert("Cannot delete a non-existent module.");
