@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/DecoReco/static/css/main.ed5cf515.css",
-    "main.js": "/DecoReco/static/js/main.737914b6.js",
+    "main.js": "/DecoReco/static/js/main.5bfc3a50.js",
     "static/js/787.0c3f432a.chunk.js": "/DecoReco/static/js/787.0c3f432a.chunk.js",
     "index.html": "/DecoReco/index.html",
     "main.ed5cf515.css.map": "/DecoReco/static/css/main.ed5cf515.css.map",
-    "main.737914b6.js.map": "/DecoReco/static/js/main.737914b6.js.map",
+    "main.5bfc3a50.js.map": "/DecoReco/static/js/main.5bfc3a50.js.map",
     "787.0c3f432a.chunk.js.map": "/DecoReco/static/js/787.0c3f432a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ed5cf515.css",
-    "static/js/main.737914b6.js"
+    "static/js/main.5bfc3a50.js"
   ]
 }
