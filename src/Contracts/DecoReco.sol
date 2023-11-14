@@ -145,7 +145,6 @@ contract DecoReco {
         }
         courseRegStarted = true;
         endTime = block.timestamp + (_duration * 1 seconds);
-        // emit StartedNotification();
     }
 
     function endCourseReg() public onlyOwner {

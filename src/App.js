@@ -235,11 +235,6 @@ class DApp extends Component {
   showResults = async () => {
     try {
       const { contract } = this.state;
-      const courseRegStarted = await contract.methods.courseRegStarted().call();
-      if (!courseRegStarted) {
-        alert("Course Registration has not started yet. Please wait for instructions.");
-        return;
-      }
       const courseRegFinished = await contract.methods.courseRegFinished().call();
       if (!courseRegFinished) {
         alert("Administrators have not yet run course allocation. Please wait.");
