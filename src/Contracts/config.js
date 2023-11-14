@@ -1,34 +1,9 @@
-export const CONTRACT_NAME_ADDRESS = "0x8FfF16791B91D7ce2a77540A680F5CdE9A59cb04";
+export const CONTRACT_NAME_ADDRESS = "0x508E053EE130AB5699C1Df5517ba576a5e33Ab1a";
 export const CONTRACT_NAME_ABI = [
     {
         "inputs": [],
         "stateMutability": "nonpayable",
         "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [],
-        "name": "StartedNotification",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "moduleName",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "address[]",
-                "name": "enrolledStudents",
-                "type": "address[]"
-            }
-        ],
-        "name": "bidResults",
-        "type": "event"
     },
     {
         "inputs": [
@@ -169,6 +144,19 @@ export const CONTRACT_NAME_ABI = [
     },
     {
         "inputs": [],
+        "name": "courseRegFinished",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "courseRegStarted",
         "outputs": [
             {
@@ -243,6 +231,38 @@ export const CONTRACT_NAME_ABI = [
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "key",
+                "type": "string"
+            }
+        ],
+        "name": "getBidResults",
+        "outputs": [
+            {
+                "internalType": "address[]",
+                "name": "",
+                "type": "address[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getModuleCodes",
+        "outputs": [
+            {
+                "internalType": "string[]",
+                "name": "",
+                "type": "string[]"
             }
         ],
         "stateMutability": "view",

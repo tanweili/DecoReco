@@ -47,8 +47,8 @@ class DApp extends Component {
 
         this.setState({ web3, account, contract, isAdmin });
 
-        this.bidResultsEventListener();
-        this.courseRegStartedEventListener();
+        // this.bidResultsEventListener();
+        // this.courseRegStartedEventListener();
       } else {
         alert("No Ethereum account is connected.");
       }
@@ -57,60 +57,60 @@ class DApp extends Component {
     }
   }
 
-  bidResultsEventListener = async () => {
-    const { contract } = this.state;
-    if (contract) {
-      // Subscribe to your event
-      contract.events.allEvents({ fromBlock: 'latest' })
-        .on('data', (event) => {
-          if (event.event === "bidResults") {
-            // Access event parameters
-            const results = event.returnValues;
-            const resultsJSON = JSON.parse(JSON.stringify(results));
+  // bidResultsEventListener = async () => {
+  //   const { contract } = this.state;
+  //   if (contract) {
+  //     // Subscribe to your event
+  //     contract.events.allEvents({ fromBlock: 'latest' })
+  //       .on('data', (event) => {
+  //         if (event.event == "bidResults") {
+  //           // Access event parameters
+  //           const results = event.returnValues;
+  //           const resultsJSON = JSON.parse(JSON.stringify(results));
 
-            this.setState((prevState) => {
-              // Create a shallow copy of the existing resultsMap
-              const updatedResultsMap = { ...prevState.resultsMap };
+  //           this.setState((prevState) => {
+  //             // Create a shallow copy of the existing resultsMap
+  //             const updatedResultsMap = { ...prevState.resultsMap };
 
-              updatedResultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents;
-              // Return the updated state
-              console.log(updatedResultsMap);
-              return { resultsMap: updatedResultsMap };
-            });
-          }
-        })
-        .on('error', (error) => {
-          alert('Error in event subscription:', error);
-        })
-        .on('connected', (error) => {
-          console.log('bidResultsEventListener connected');
-        });
-      console.log("Bid results event listener EOF reached");
-    }
-  };
+  //             updatedResultsMap[resultsJSON.moduleName] = resultsJSON.enrolledStudents;
+  //             // Return the updated state
+  //             console.log(updatedResultsMap);
+  //             return { resultsMap: updatedResultsMap };
+  //           });
+  //         }
+  //       })
+  //       .on('error', (error) => {
+  //         alert('Error in event subscription:', error);
+  //       })
+  //       .on('connected', (error) => {
+  //         console.log('bidResultsEventListener connected');
+  //       });
+  //     console.log("Bid results event listener EOF reached");
+  //   }
+  // };
 
-  courseRegStartedEventListener = async () => {
-    const { contract } = this.state;
-    if (contract) {
-      // Subscribe to your event
-      contract.events.allEvents({ fromBlock: 'latest' })
-        .on('data', (event) => {
-          if (event.event === "StartedNotification") {
-            const resultsMap = {};
-            this.setState({ resultsMap });
-            const bids = [];
-            this.setState({ bids });
-          }
-        })
-        .on('error', (error) => {
-          alert('Error in event subscription:', error);
-        })
-        .on('connected', (error) => {
-          console.log('courseRegStartedEventListener connected');
-        });
-      console.log("Course reg started event listener EOF reached");
-    }
-  };
+  // courseRegStartedEventListener = async () => {
+  //   const { contract } = this.state;
+  //   if (contract) {
+  //     // Subscribe to your event
+  //     contract.events.allEvents({ fromBlock: 'latest' })
+  //       .on('data', (event) => {
+  //         if (event.event == "StartedNotification") {
+  //           const resultsMap = {};
+  //           this.setState({ resultsMap });
+  //           const bids = [];
+  //           this.setState({ bids });
+  //         }
+  //       })
+  //       .on('error', (error) => {
+  //         alert('Error in event subscription:', error);
+  //       })
+  //       .on('connected', (error) => {
+  //         console.log('courseRegStartedEventListener connected');
+  //       });
+  //     console.log("Course reg started event listener EOF reached");
+  //   }
+  // };
 
   // Function to register a student
   registerStudent = async () => {
@@ -166,7 +166,6 @@ class DApp extends Component {
       alert("Error viewing module details:", error.message);
     }
   };
-
 
   // Function to place a bid
   placeBid = async () => {
@@ -256,9 +255,67 @@ class DApp extends Component {
     this.setState({ bids });
   };
 
+  clearBids = async () => {
+    const { contract } = this.state;
+    const courseRegFinished = await contract.methods.courseRegFinished().call();
+    if (!courseRegFinished) {
+      alert("You can only clear bids when a course registration has finished");
+      return;
+    }
+    const userResponse = window.confirm("Are you sure you want to clear your bids? This cannot be undone.");
+    if (userResponse) {
+      const bids = []
+      this.setState({ bids });
+    }
+  };
+
+  clearResults = async () => {
+    const { contract } = this.state;
+    const courseRegFinished = await contract.methods.courseRegFinished().call();
+    if (!courseRegFinished) {
+      alert("You can only clear bids when a course registration has finished");
+      return;
+    }
+    const userResponse = window.confirm("Are you sure you want to clear the results? This cannot be undone.");
+    if (userResponse) {
+      const resultsMap = {};
+      this.setState({ resultsMap });
+    }
+  };
+
   // Function to display results
   showResults = async () => {
-    // Add your logic to display results here
+    try {
+      const { contract } = this.state;
+      const courseRegStarted = await contract.methods.courseRegStarted().call();
+      if (!courseRegStarted) {
+        alert("Course Registration has not started yet. Please wait for instructions.");
+        return;
+      }
+      const courseRegFinished = await contract.methods.courseRegFinished().call();
+      if (!courseRegFinished) {
+        alert("Administrators have not yet run course allocation. Please wait.");
+        return;
+      }
+      
+      const moduleCodes = await contract.methods.getModuleCodes().call();
+      const resultsMap = {};
+  
+      // Iterate through moduleCodes and get bid results for each module
+      for (let i = 0; i < moduleCodes.length; i++) {
+        const moduleCode = moduleCodes[i];
+        const enrolledStudents = await contract.methods.getBidResults(moduleCode).call();
+        resultsMap[moduleCode] = enrolledStudents;
+      }
+  
+      // Update the state with the obtained results
+      this.setState({ resultsMap });
+  
+      // Add any additional logic or UI updates based on the results
+      console.log("Results Map:", resultsMap);
+    } catch (error) {
+      console.error("Error fetching results:", error.message);
+    }
   };
 
   startCourseReg = async () => {
@@ -389,6 +446,12 @@ class DApp extends Component {
           />
           <br />
           <button onClick={this.placeBid}>Place Bid</button>
+          <br />
+          <button onClick={this.showResults}>Show Results</button>
+          <br />
+          <button onClick={this.clearBids}>Clear Bids</button>
+          <br />
+          <button onClick={this.clearResults}>Clear Results</button>
 
         </div>
 

@@ -12,9 +12,11 @@ contract DecoReco {
     mapping(string => MinHeap) public Bids;
     mapping(string => mapping (address => uint256)) public BidMade;
     bool public courseRegStarted;
+    bool public courseRegFinished;
     uint256 public endTime;
-    event StartedNotification();
-    event bidResults(string moduleName, address[] enrolledStudents);
+    mapping(string => address[]) bidResults;
+    // event StartedNotification();
+    // event bidResults(string moduleName, address[] enrolledStudents);
 
     constructor() {
         admins[0x386703857E714284e154a7d937348d2d88a702D8] = true; // Wei Li
@@ -25,6 +27,7 @@ contract DecoReco {
         modules["EE4032"] = Module("Blockchain Engineering", "This module provides an introduction to blockchain.", 70, true);
         Bids["EE4032"] = new MinHeap(70);
         courseRegStarted = false;
+        courseRegFinished = false;
     }
 
     modifier onlyOwner() {
@@ -35,6 +38,14 @@ contract DecoReco {
     modifier onlyRegisteredStudents() {
         require(registeredStudents[msg.sender].isRegistered, "Only registered students can call this function.");
         _;
+    }
+
+    function getModuleCodes() external view returns (string[] memory) {
+        return moduleCodes;
+    }
+
+    function getBidResults(string memory key) external view returns (address[] memory) {
+        return bidResults[key];
     }
 
     function checkAdminStatus(address _address) public view returns (bool) {
@@ -126,14 +137,19 @@ contract DecoReco {
     }
 
     function startCourseReg(uint256 _duration) public onlyOwner {
+        courseRegFinished = false;
+        for (uint256 i = 0; i < moduleCodes.length; i++)  {
+            while (bidResults[moduleCodes[i]].length > 0) {
+                bidResults[moduleCodes[i]].pop();
+            }
+        }
         courseRegStarted = true;
         endTime = block.timestamp + (_duration * 1 seconds);
-        emit StartedNotification();
+        // emit StartedNotification();
     }
 
     function endCourseReg() public onlyOwner {
-        courseRegStarted = false;
-
+        courseRegFinished = true;
         for (uint256 i = 0; i < studentAddresses.length; i++) {
             address studentAddress = studentAddresses[i];
             registeredStudents[studentAddress].eDollars = 1000;
@@ -144,8 +160,9 @@ contract DecoReco {
             address[] memory enrolledStudents = new address[](heap.length);
             for (uint256 j = 0; j < heap.length; j++) {
                 enrolledStudents[j] = heap[j].studentAddress;
+                bidResults[moduleCodes[i]].push(heap[j].studentAddress);
             }
-            emit bidResults(moduleCodes[i], enrolledStudents);
+            // emit bidResults(moduleCodes[i], enrolledStudents);
             Bids[moduleCodes[i]].resetHeap();
         }
 
